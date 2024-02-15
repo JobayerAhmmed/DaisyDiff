@@ -32,6 +32,9 @@
       <script>
         htmlDiffInit();
       </script>
+
+      <xsl:variable name="variable_content">{{variable_content_value}}</xsl:variable>
+      <xsl:copy-of select="$variable_content" />
       
         <xsl:variable name="spans" select="diffreport/diff//span[(@class='diff-html-added' or @class='diff-html-removed' or @class='diff-html-changed')  and @id]"/>
       	<!-- <div class="diff-topbar">

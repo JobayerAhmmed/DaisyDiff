@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Locale;
 
 import javax.xml.transform.TransformerFactory;
@@ -37,6 +40,7 @@ public class Main {
         String outputFileName = "daisydiff.htm";
         String[] css = new String[]{};
         String[] js = new String[]{};
+        boolean doxygenHTML = false;
 
         InputStream oldStream = null;
         InputStream newStream = null;
@@ -58,6 +62,8 @@ public class Main {
                     if (split[1].equalsIgnoreCase("xml")) {
                         htmlOut = false;
                     }
+                } else if (split[0].equals("--doxygen")) {
+                    doxygenHTML = true;
                 } else if (split[0].equals("--q")){
                   quietMode = true;
                 } else{
@@ -127,9 +133,16 @@ public class Main {
             XslFilter filter = new XslFilter();
 
             if (htmlDiff) {
-
-                ContentHandler postProcess = htmlOut? filter.xsl(result,
-                        "xslfilter/htmlheader.xsl"):result;
+                ContentHandler postProcess = result;
+                if (doxygenHTML) {
+                    String doxygenJSContent = getDoxygenJS(args[1]);
+                    postProcess = htmlOut ? filter.xsl(result,
+                            "xslfilter/htmlheader.xsl",
+                            doxygenJSContent) : result;
+                } else {
+                    postProcess = htmlOut ? filter.xsl(result,
+                            "xslfilter/htmlheader.xsl") : result;
+                }
 
                 Locale locale = Locale.getDefault();
                 String prefix = "diff";
@@ -272,6 +285,65 @@ public class Main {
         handler.endElement("", "js", "js");
     }
 
+    private static String getDoxygenJS(String newFile) {
+        String doxygenJs = "";
+        if (newFile.startsWith("http://")) {
+            return doxygenJs;
+        }
+
+        String[] pathComponents = newFile.split("/");
+        int size = pathComponents.length;
+        int htmlIndex = 0;
+        String afterHtmlFilePath = "";
+        String parentPath = Paths.get("", new String[]{"..", ".."}).toString();
+        while (size > 0) {
+            size--;
+            if (pathComponents[size] == "html") {
+                htmlIndex = size;
+                break;
+            }
+        }
+        if (htmlIndex > 0) {
+            String[] afterHtmlComponents = Arrays.copyOfRange(pathComponents,
+                    htmlIndex + 1, pathComponents.length);
+            afterHtmlFilePath = Paths.get("", afterHtmlComponents).toString();
+            String[] parentPathComponents = new String[afterHtmlComponents.length - 1];
+            Arrays.fill(parentPathComponents, "..");
+            parentPath = Paths.get("", parentPathComponents).toString();
+        }
+
+        String separator = FileSystems.getDefault().getSeparator();
+        String searchPath = Paths.get(parentPath, "search").toString() + separator;
+        String menuDataPath = Paths.get(parentPath, "menudata.js").toString();
+        String menuPath = Paths.get(parentPath, "menu.js").toString();
+        String initMenuPath = parentPath + separator;
+
+        doxygenJs = "<script type=\"text/javascript\">\n" +
+                "    var searchBox = new SearchBox(\"searchBox\", \"%SEARCH_PATH%\", '.html');\n" +
+                "</script>\n" +
+                "<script type=\"text/javascript\" src=\"%MENUDATA_PATH%\"></script>\n" +
+                "<script type=\"text/javascript\" src=\"%MENU_PATH%\"></script>\n" +
+                "<script type=\"text/javascript\">\n" +
+                "    $(function () {\n" +
+                "        initMenu('%INIT_MENU_PATH%', true, false, 'search.php', 'Search');\n" +
+                "        $(document).ready(function () { init_search(); });\n" +
+                "    });\n" +
+                "</script>\n" +
+                "<script type=\"text/javascript\">\n" +
+                "    $(document).ready(function () { initNavTree('%INIT_NAV_TREE_PATH%', '%INIT_RESIZABLE_PATH%'); initResizable(); });\n" +
+                "</script>";
+        
+        doxygenJs = doxygenJs
+                .replace("%SEARCH_PATH%", searchPath)
+                .replace("%MENUDATA_PATH%", menuDataPath)
+                .replace("%MENU_PATH%", menuPath)
+                .replace("%INIT_MENU_PATH%", initMenuPath)
+                .replace("%INIT_NAV_TREE_PATH%", afterHtmlFilePath)
+                .replace("%INIT_RESIZABLE_PATH%", initMenuPath);
+
+        return doxygenJs;
+    }
+
     private static void help() {
         System.out.println("==========================");
         System.out.println("DAISY DIFF HELP:");
@@ -283,6 +355,7 @@ public class Main {
         System.out.println("--css=[cssfile1;cssfile2;cssfile3] - Add external CSS files.");
         System.out.println("--js=[jsfile1;jsfile2;jsfile3] - Add external JS files.");
         System.out.println("--output=[html/xml] - Write html (default) or xml output.");
+        System.out.println("--doxygen - Consider html files as Doxygen-generated (applicable if type=html).");
         System.out.println("--q  - Generate less console output.");
         System.out.println("");
         System.out.println("EXAMPLES: ");
