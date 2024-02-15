@@ -91,10 +91,11 @@ public class Main {
             }
 
             if(css.length>0){
-                if (!quietMode)
-                  System.out.println("Adding external css files:");
-                for(String cssLink:css){
-                    System.out.println("  "+cssLink);
+                if (!quietMode) {
+                    System.out.println("Adding external css files:");
+                    for(String cssLink : css){
+                        System.out.println("  " + cssLink);
+                    }
                 }
             }
             if (js.length > 0) {
