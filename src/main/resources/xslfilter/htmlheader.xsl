@@ -34,7 +34,7 @@
       </script>
       
         <xsl:variable name="spans" select="diffreport/diff//span[(@class='diff-html-added' or @class='diff-html-removed' or @class='diff-html-changed')  and @id]"/>
-      	<div class="diff-topbar">
+      	<!-- <div class="diff-topbar">
         <table class="diffpage-html-firstlast">
         <tr><td style="text-align: left;">
             <a>
@@ -94,7 +94,7 @@
                 title="Go to last change."/>
             </a>
          </td></tr></table>
-         </div>
+         </div> -->
 	     <xsl:apply-templates select="diffreport/diff/node()"/>
 	  </body>
    </html>
