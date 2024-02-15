@@ -22,6 +22,7 @@
       <head>
         <xsl:apply-templates select="diffreport/css/node()"/>
         <link href="css/diff.css" type="text/css" rel="stylesheet"/>
+        <xsl:apply-templates select="diffreport/js/node()"/>
       </head>
       <body>
       <script src="js/tooltip/wz_tooltip.js" type="text/javascript"></script>

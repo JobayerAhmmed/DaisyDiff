@@ -36,6 +36,7 @@ public class Main {
         boolean htmlOut = true;
         String outputFileName = "daisydiff.htm";
         String[] css = new String[]{};
+        String[] js = new String[]{};
 
         InputStream oldStream = null;
         InputStream newStream = null;
@@ -51,6 +52,8 @@ public class Main {
                     }
                 } else if (split[0].equalsIgnoreCase("--css")) {
                     css = split[1].split(";");
+                } else if (split[0].equalsIgnoreCase("--js")) {
+                    js = split[1].split(";");
                 } else if (split[0].equalsIgnoreCase("--output")) {
                     if (split[1].equalsIgnoreCase("xml")) {
                         htmlOut = false;
@@ -86,6 +89,14 @@ public class Main {
                   System.out.println("Adding external css files:");
                 for(String cssLink:css){
                     System.out.println("  "+cssLink);
+                }
+            }
+            if (js.length > 0) {
+                if (!quietMode) {
+                    System.out.println("Adding external js files:");
+                    for (String jsLink : js) {
+                        System.out.println("  " + jsLink);
+                    }
                 }
             }
             if (!quietMode){
@@ -144,6 +155,7 @@ public class Main {
                 postProcess.startElement("", "diffreport", "diffreport",
                         new AttributesImpl());
                 doCSS(css, postProcess);
+                doJS(js, postProcess);
                 postProcess.startElement("", "diff", "diff",
                         new AttributesImpl());
                 HtmlSaxDiffOutput output = new HtmlSaxDiffOutput(postProcess,
@@ -246,6 +258,20 @@ public class Main {
 
     }
 
+    private static void doJS(String[] js, ContentHandler handler) throws SAXException {
+        handler.startElement("", "js", "js",
+                new AttributesImpl());
+        for(String jsLink : js){
+            AttributesImpl attr = new AttributesImpl();
+            attr.addAttribute("", "type", "type", "CDATA", "text/javascript");
+            attr.addAttribute("", "src", "src", "CDATA", jsLink);
+            handler.startElement("", "script", "script",
+                    attr);
+            handler.endElement("", "script", "script");
+        }
+        handler.endElement("", "js", "js");
+    }
+
     private static void help() {
         System.out.println("==========================");
         System.out.println("DAISY DIFF HELP:");
@@ -255,6 +281,7 @@ public class Main {
         System.out
                 .println("--type=[html/tag] - Use the html (default) diff algorithm or the tag diff.");
         System.out.println("--css=[cssfile1;cssfile2;cssfile3] - Add external CSS files.");
+        System.out.println("--js=[jsfile1;jsfile2;jsfile3] - Add external JS files.");
         System.out.println("--output=[html/xml] - Write html (default) or xml output.");
         System.out.println("--q  - Generate less console output.");
         System.out.println("");
