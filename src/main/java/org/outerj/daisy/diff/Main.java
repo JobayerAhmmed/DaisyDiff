@@ -155,13 +155,13 @@ public class Main {
 
                 DomTreeBuilder oldHandler = new DomTreeBuilder();
                 cleaner.cleanAndParse(oldSource, oldHandler);
-                System.out.print(".");
+                // System.out.print(".");
                 TextNodeComparator leftComparator = new TextNodeComparator(
                         oldHandler, locale);
 
                 DomTreeBuilder newHandler = new DomTreeBuilder();
                 cleaner.cleanAndParse(newSource, newHandler);
-                System.out.print(".");
+                // System.out.print(".");
                 TextNodeComparator rightComparator = new TextNodeComparator(
                         newHandler, locale);
 
@@ -177,7 +177,7 @@ public class Main {
 
                 HTMLDiffer differ = new HTMLDiffer(output);
                 differ.diff(leftComparator, rightComparator);
-                System.out.print(".");
+                // System.out.print(".");
                 postProcess.endElement("", "diff", "diff");
                 postProcess.endElement("", "diffreport", "diffreport");
                 postProcess.endDocument();
@@ -191,7 +191,7 @@ public class Main {
                         new AttributesImpl());
                 postProcess.startElement("", "diff", "diff",
                         new AttributesImpl());
-                System.out.print(".");
+                // System.out.print(".");
 
 
                 InputStreamReader oldReader = null;
@@ -217,7 +217,7 @@ public class Main {
                 }
 
 
-                System.out.print(".");
+                // System.out.print(".");
                 postProcess.endElement("", "diff", "diff");
                 postProcess.endElement("", "diffreport", "diffreport");
                 postProcess.endDocument();
@@ -248,10 +248,10 @@ public class Main {
                 //ignore this exception
             }
         }
-        if (quietMode)
-          System.out.println();
-        else
-          System.out.println("done");
+        // if (quietMode)
+        //   System.out.println();
+        // else
+        //   System.out.println("done");
 
     }
 

@@ -127,9 +127,10 @@ public class HTMLDiffer implements Differ{
         for (RangeDifference d : pdifferences) {
 
             if (d.leftStart() > currentIndexLeft) {
-                rightComparator.handlePossibleChangedPart(currentIndexLeft, d
-                        .leftStart(), currentIndexRight, d.rightStart(),
-                        leftComparator);
+                /* @author Jobayer Ahmmed */
+                // rightComparator.handlePossibleChangedPart(currentIndexLeft, d
+                //         .leftStart(), currentIndexRight, d.rightStart(),
+                //         leftComparator);
             }
             if (d.leftLength() > 0) {
                 rightComparator.markAsDeleted(d.leftStart(), d.leftEnd(),
@@ -141,9 +142,10 @@ public class HTMLDiffer implements Differ{
             currentIndexRight = d.rightEnd();
         }
         if (currentIndexLeft < leftComparator.getRangeCount()) {
-            rightComparator.handlePossibleChangedPart(currentIndexLeft,
-                    leftComparator.getRangeCount(), currentIndexRight,
-                    rightComparator.getRangeCount(), leftComparator);
+            /* @author Jobayer Ahmmed */
+            // rightComparator.handlePossibleChangedPart(currentIndexLeft,
+            //         leftComparator.getRangeCount(), currentIndexRight,
+            //         rightComparator.getRangeCount(), leftComparator);
         }
 
         rightComparator.expandWhiteSpace();
